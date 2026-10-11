@@ -17,7 +17,7 @@ A Nautilus (GNOME Files) extension that adds a customizable "Copy Path" and "Cop
   - Markdown Link: `[file.txt](file:///home/user/project/file.txt)`
 - Multi-file selection support (newline-separated, shell-quoted, JSON array).
 - Folder background support to copy current folder path from empty space.
-- Wayland and X11 clipboard compatibility using GTK4 GDK clipboard with wl-copy and xclip fallback.
+- Wayland and X11 clipboard compatibility using the GTK4 GDK clipboard, with `wl-copy` and `xclip` only as a non-blocking fallback.
 - Transient desktop notification on copy.
 - Optional JSON configuration file.
 
@@ -26,7 +26,7 @@ A Nautilus (GNOME Files) extension that adds a customizable "Copy Path" and "Cop
 - GNOME Files (Nautilus) 43 or later
 - python-nautilus (nautilus-python)
 - Python 3.8+
-- wl-clipboard (Wayland) or xclip (X11)
+- wl-clipboard (Wayland) or xclip (X11), optional: only used if the GTK clipboard is unavailable
 - libnotify / notify-send (optional, for notifications)
 
 ### Package Installation
