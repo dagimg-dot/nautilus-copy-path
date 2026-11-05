@@ -72,38 +72,34 @@ def format_multiple_paths(paths: list[str], style: str) -> str:
 
 
 def copy_to_clipboard(text: str) -> None:
+    # Nautilus owns the clipboard natively through GTK. That is instant and needs
+    # no window focus. wl-copy/xclip are only a fallback, and are started without
+    # waiting: on GNOME/Wayland wl-copy needs a focused surface to take the
+    # clipboard, so waiting for it can hang until another window is focused.
     try:
         from gi.repository import Gdk
 
         display = Gdk.Display.get_default()
         if display:
-            clipboard = display.get_clipboard()
-            clipboard.set(text)
+            display.get_clipboard().set(text)
+            return
     except Exception:
         pass
 
-    if shutil.which("wl-copy"):
-        try:
-            subprocess.run(
-                ["wl-copy"],
-                input=text.encode("utf-8"),
-                check=False,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except Exception:
-            pass
-    elif shutil.which("xclip"):
-        try:
-            subprocess.run(
-                ["xclip", "-selection", "clipboard"],
-                input=text.encode("utf-8"),
-                check=False,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-        except Exception:
-            pass
+    for cmd in (["wl-copy"], ["xclip", "-selection", "clipboard"]):
+        if shutil.which(cmd[0]):
+            try:
+                proc = subprocess.Popen(
+                    cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                proc.stdin.write(text.encode("utf-8"))
+                proc.stdin.close()
+            except Exception:
+                pass
+            return
 
 
 def notify(summary: str, body: str = "") -> None:
